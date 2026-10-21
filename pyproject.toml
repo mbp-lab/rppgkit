@@ -1,0 +1,51 @@
+[project]
+name = "rppgkit"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+license = "GPL-3.0-only AND MIT AND LicenseRef-OpenCV-Intel"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+authors = [
+    { name = "b-acharya", email = "bhargav.acharya@uni-bielefeld.de" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "hydra-core>=1.3.7",
+    "hydra-submitit-launcher>=1.2.0",
+    "mlflow>=3.16.1",
+    "numpy>=2",
+    # <4.13: 4.13 and 5.0 corrupt memory reading UBFC's uncompressed AVIs (tested 2026-09-24).
+    "opencv-contrib-python-headless>=4.10,<4.13",
+    "scipy>=1.18.1",
+    "torch>=2.14.0",
+    "torchvision>=0.29.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+# Copied third-party code (THIRD_PARTY_NOTICES.md): no lint or format, so they stay
+# line-for-line comparable with the originals.
+extend-exclude = [
+    "src/rppgkit/roi/face/yolo5face/yolo.py",
+    "src/rppgkit/roi/face/yolo5face/data_ops.py",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.8",
+]
+docs = [
+    # MkDocs 2.0 removes plugins and theme overrides; Material needs 1.x.
+    "mkdocs>=1.6,<2",
+    "mkdocs-material>=9.7.7",
+    "mkdocstrings[python]>=1.0.6",
+]
+notebooks = [
+    "jupyterlab>=4.6.4",
+    "matplotlib>=3.11.2",
+    "pandas>=3.0.6",
+]

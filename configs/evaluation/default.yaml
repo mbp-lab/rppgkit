@@ -1,0 +1,33 @@
+# Post-processing applied identically to prediction and ground truth, then heart rate
+# from the highest FFT peak in the band. Defaults match rPPG-Toolbox
+# (evaluation/post_process.py) so numbers are comparable.
+_target_: rppgkit.evaluation.EvaluationSettings
+
+# Smoothness-priors detrending strength (Tarvainen et al., 2002).
+detrend_lambda: 100
+
+# Heart-rate band in Hz: 0.75-2.5 Hz = 45-150 bpm. Also the band-pass filter's band.
+low_hz: 0.75
+high_hz: 2.5
+
+# Butterworth band-pass order (applied forward and backward, so zero phase).
+filter_order: 1
+
+# Band searched for the heart-rate peak, in Hz. null = the band-pass band above.
+search_low_hz: null
+search_high_hz: null
+
+# Heart-rate estimator: periodogram (one spectrum of the whole window) or welch
+# (average of welch_segment_sec Hann segments, 50% overlap; smoother, coarser).
+hr_estimator: periodogram
+welch_segment_sec: 4.0 # only used by welch
+
+# FFT length is the next power of two of the signal, at least min_fft_length. Larger =
+# zero-padding, a finer frequency grid (bin = fps / nfft × 60 bpm). 1 = no padding.
+min_fft_length: 1
+
+# null = one heart rate per whole video. Otherwise heart rates per window of
+# window_sec seconds, starting every window_stride_sec (null = window_sec, no overlap);
+# each window is detrended and filtered on its own. Metrics are over windows.
+window_sec: null
+window_stride_sec: null

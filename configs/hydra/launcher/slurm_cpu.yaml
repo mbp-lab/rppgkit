@@ -1,0 +1,21 @@
+# General CPU-only SLURM job. Used when a script runs with -m (multirun);
+# without -m the script runs locally in your shell.
+# Task-specific launchers extend this file and override what they need (see haar72.yaml).
+# null = don't pass to SLURM, i.e. use the cluster's default.
+_target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
+
+# SLURM logs (stdout/stderr) per job.
+submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+
+# null = cluster default partition (`sinfo -s`, marked with *). On our cluster that is `gpu`.
+partition: null
+
+# Job time limit in minutes.
+timeout_min: 60
+
+cpus_per_task: 1
+mem_gb: 4
+gpus_per_node: 0
+nodes: 1
+tasks_per_node: 1
+name: ${hydra.job.name}

@@ -1,0 +1,16 @@
+# SLURM resources for building an ROI cache with YOLO5Face (one GPU); the default
+# launcher of 1_extract_roi.py. For roi=haar72 use hydra/launcher=haar72.
+defaults:
+  - slurm_cpu
+  - _self_
+
+# The GPU partition, with one A40 requested explicitly.
+partition: gpu
+gpus_per_node: null
+additional_parameters:
+  gres: gpu:a40:1
+
+# Not measured yet for YOLO5Face; adjust after the first run (seff <jobid>).
+timeout_min: 120
+cpus_per_task: 4
+mem_gb: 16

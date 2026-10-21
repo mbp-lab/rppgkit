@@ -1,0 +1,35 @@
+# Face cropping with OpenCV's Haar cascade, 72×72 output.
+# Every value below is part of the cache key: changing any of them builds a new ROI cache.
+_target_: rppgkit.roi.face.cropper.FaceCropper
+
+# Output crop side in pixels (output_size × output_size).
+# Common choices: 72 (PhysNet, TS-CAN), 128.
+output_size: 72
+
+# Box size = box_scale × the detected face box, same centre.
+# 1.0 = tight face; 1.5 includes forehead/chin/some background (rPPG-Toolbox default).
+box_scale: 1.5
+
+# true = square of box_scale × the longer side, shifted to fit inside the frame.
+# false = the scaled detection box itself, clipped to the frame, stretched to
+# output_size × output_size. The crop changes POS results a lot (docs/decisions.md).
+square_box: true
+
+# Run the detector every N frames and keep each box until the next detection.
+# 1 = every frame (boxes jitter); >= the video length = one box from the first frame.
+detect_every: 1
+
+detector:
+  _target_: rppgkit.roi.face.haar.detector.HaarFaceDetector
+
+  # Cascade XML. null = the bundled src/rppgkit/roi/face/haar/haarcascade_frontalface_default.xml
+  # (from https://github.com/opencv/opencv/tree/4.x/data/haarcascades).
+  # Otherwise a path relative to src/rppgkit/roi/face/haar/, or an absolute path.
+  cascade_path: null
+
+  # How much the image shrinks between detection scales. Smaller = slower, finds more sizes.
+  scale_factor: 1.1
+
+  # Overlapping candidates needed to accept a face. Higher = fewer false positives,
+  # more missed frames.
+  min_neighbors: 5

@@ -1,0 +1,8 @@
+# Machine-specific paths shared by all scripts. Dataset folders are in configs/dataset/.
+
+# >>> STUDENTS: REPLACE THIS PATH WITH YOUR OWN before running anything. <<<
+# The path below is the maintainer's; left as is, your caches go into the lab's folder.
+# SET ONCE when you set up: absolute path of the folder where all caches are written.
+# Each dataset gets its own subfolder: <cache_root>/<dataset>/<stage>/<key>/.
+# Not part of the cache key.
+cache_root: /data/rppg_20_ubfc_video_nt_lab/processed/

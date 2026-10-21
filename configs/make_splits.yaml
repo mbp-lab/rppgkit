@@ -1,0 +1,7 @@
+# Make a subject-level split file for one dataset. Run once, then commit the file.
+#   uv run python scripts/3_make_splits.py dataset=ubfc_rppg split=kfold
+# Writes split.path; an existing file is never overwritten.
+defaults:
+  - dataset: ubfc_rppg # configs/dataset/<name>.yaml: whose subjects to split
+  - split: kfold # configs/split/<name>.yaml: kfold or test_only
+  - _self_

@@ -1,0 +1,38 @@
+# Face cropping with YOLO5Face (small, WIDER FACE weights), 72×72 output.
+# Every value below except `device` is part of the cache key: changing any of them
+# builds a new ROI cache.
+_target_: rppgkit.roi.face.cropper.FaceCropper
+
+# Output crop side in pixels (output_size × output_size).
+# Common choices: 72 (PhysNet, TS-CAN), 128.
+output_size: 72
+
+# Box size = box_scale × the detected face box, same centre.
+# 1.0 = tight face; 1.5 includes forehead/chin/some background (rPPG-Toolbox default).
+box_scale: 1.5
+
+# true = square of box_scale × the longer side, shifted to fit inside the frame.
+# false = the scaled detection box itself, clipped to the frame, stretched to
+# output_size × output_size. The crop changes POS results a lot (docs/decisions.md).
+square_box: true
+
+# Run the detector every N frames and keep each box until the next detection.
+# 1 = every frame (boxes jitter); >= the video length = one box from the first frame.
+detect_every: 1
+
+detector:
+  _target_: rppgkit.roi.face.yolo5face.detector.YOLO5FaceDetector
+
+  # Weights: always the bundled src/rppgkit/roi/face/yolo5face/ckpts/Y5sF_WFRGB.pth.
+
+  # Minimum face confidence (0-1). Lower = fewer missed frames, more false faces.
+  conf_threshold: 0.6
+
+  # Overlap above which two boxes count as the same face (non-maximum suppression).
+  iou_threshold: 0.5
+
+  # The longer frame side is scaled to this before detection (multiple of 32).
+  img_size: 640
+
+  # auto = first GPU if available, else CPU; or "cpu" / "cuda:0". Not part of the cache key.
+  device: auto

@@ -1,0 +1,43 @@
+# Builds the documentation site (mkdocs.yml, docs/) on every push to main; the build
+# fails on broken links or includes. Publishing to GitHub Pages runs only once the
+# repository is public (private Pages sites would be public on our plan); then set
+# Settings → Pages → Source: "GitHub Actions".
+name: docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      # Only the docs dependency group: no torch/opencv needed to build the site.
+      - run: uv run --only-group docs mkdocs build --strict --site-dir site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    # Skipped (not failed) while the repository is private.
+    if: github.event.repository.visibility == 'public'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

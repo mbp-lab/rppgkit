@@ -1,0 +1,18 @@
+# SLURM resources for training (one GPU), used by train.py.
+#   uv run python scripts/train.py -m split.fold=0,1,2,3,4
+defaults:
+  - slurm_cpu
+  - _self_
+
+# The GPU partition, with one A40 requested explicitly.
+partition: gpu
+gpus_per_node: null
+additional_parameters:
+  gres: gpu:a40:1
+
+# Not measured yet for PhysNet on UBFC; adjust after the first run (seff <jobid>).
+timeout_min: 240
+# One per data-loading worker (trainer.num_workers) plus the main process.
+cpus_per_task: 5
+# Memory-mapped caches: RAM holds only the chunks being read, plus the model.
+mem_gb: 32

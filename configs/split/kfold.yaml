@@ -1,0 +1,29 @@
+# K-fold over subjects: every subject is in the test set of exactly one fold.
+# The committed split file for the selected dataset: made by 3_make_splits.py, read by
+# experiments. Path relative to the repo root.
+path: splits/${hydra:runtime.choices.dataset}_kfold.json
+
+# Which fold an experiment runs; all folds: -m split.fold=range(5)
+fold: 0
+
+# --- Only used by 3_make_splits.py; experiments read the committed file. A variant
+# (e.g. n_folds=10 or other subjects) needs its own path when making and using it.
+
+# Subjects to split, as "<dataset>/<subject>". null = all subjects of the dataset.
+include: null
+
+# Subjects to leave out, e.g. recordings with known problems.
+exclude: []
+
+# How the folds are made.
+maker:
+  _target_: rppgkit.splits.KFold
+
+  # Number of folds; each fold tests ~1/n_folds of the subjects.
+  n_folds: 5
+
+  # Share of each fold's training subjects held out for validation.
+  val_fraction: 0.2
+
+  # Seed for shuffling subjects before assigning folds.
+  seed: 0

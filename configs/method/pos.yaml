@@ -1,0 +1,6 @@
+# POS (Wang et al., 2017): projects the mean face colour onto a plane orthogonal to the
+# skin tone. No training; uses only the ROI cache (mean colour computed on the fly).
+_target_: rppgkit.methods.pos.POS
+
+# Sliding window length in seconds (paper: 1.6 s, about one heartbeat at low heart rates).
+window_sec: 1.6

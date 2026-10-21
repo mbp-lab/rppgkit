@@ -1,0 +1,18 @@
+# Evaluate a method (no training) on the test subjects of one split fold.
+#   uv run python scripts/evaluate.py method=pos split=test_only
+# dataset and roi must match 1_extract_roi.py: they point to the ROI cache to read.
+defaults:
+  - paths # configs/paths.yaml: cache_root
+  - dataset: ubfc_rppg # configs/dataset/<name>.yaml
+  - roi: yolo5face36_tight # configs/roi/<name>.yaml: which ROI cache to read
+  # configs/preprocessing/<name>.yaml, a list: caches the method reads besides the
+  # ROI cache; none for POS. e.g. preprocessing=[rgb_mean]
+  - preprocessing: []
+  - split: test_only # configs/split/<name>.yaml: which subjects are train/val/test
+  - method: pos # configs/method/<name>.yaml
+  - evaluation: default # configs/evaluation/<name>.yaml: post-processing and heart rate
+  # SLURM resources for -m runs. configs/hydra/launcher/<name>.yaml
+  - override hydra/launcher: slurm_cpu
+  - _self_
+
+preprocessing: {}

@@ -1,0 +1,12 @@
+# UBFC-rPPG (DATASET_2): one video per subject, subject<N>/vid.avi + ground_truth.txt.
+_target_: rppgkit.datasets.ubfc_rppg.UBFCrPPGReader
+
+# Dataset part of every RecordingKey ("ubfc_rppg/subject1/0") and the cache folder
+# <cache_root>/<name>/. Don't change it: split files and caches are keyed by it.
+name: ubfc_rppg
+
+# >>> STUDENTS: REPLACE THIS PATH WITH YOUR OWN before running anything. <<<
+# The path below is the maintainer's copy of UBFC-rPPG.
+# SET ONCE when you set up: absolute path of the folder containing the subject<N>/
+# folders. Not part of the cache key.
+root: /data/rppg_20_ubfc_video_nt_lab/raw/

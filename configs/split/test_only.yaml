@@ -1,0 +1,21 @@
+# All subjects in test, no training or validation subjects: for methods without
+# training (POS, CHROM, GREEN) or pretrained models on a new dataset.
+# The committed split file for the selected dataset: made by 3_make_splits.py, read by
+# experiments. Path relative to the repo root.
+path: splits/${hydra:runtime.choices.dataset}_test_only.json
+
+# The only fold.
+fold: 0
+
+# --- Only used by 3_make_splits.py; experiments read the committed file. Other subjects
+# need their own path when making and using the file.
+
+# Subjects to test, as "<dataset>/<subject>". null = all subjects of the dataset.
+include: null
+
+# Subjects to leave out, e.g. recordings with known problems.
+exclude: []
+
+# How the fold is made.
+maker:
+  _target_: rppgkit.splits.TestOnly

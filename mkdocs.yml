@@ -1,0 +1,111 @@
+# Documentation site. Preview: uv run --group docs mkdocs serve
+# Pages live in docs/; structure follows Diátaxis and grows one page at a time.
+site_name: rppgkit
+site_description: Config-driven, reproducible remote photoplethysmography (rPPG) experiments.
+repo_url: https://github.com/mbp-lab/rppgkit
+repo_name: mbp-lab/rppgkit
+
+# Grouped by Diátaxis section; a section is added with its first page, never empty.
+nav:
+  - Home: index.md
+  - Tutorials:
+      - Your first POS evaluation: tutorials/first-pos-evaluation.md
+  - How-to guides:
+      - How to extract the ROI: how-to/extract-the-roi.md
+      - How to evaluate a method: how-to/evaluate-a-method.md
+  - Reference:
+      - rppgkit.recording: reference/recording.md
+      - rppgkit.roi: reference/roi.md
+      - rppgkit.preprocessing: reference/preprocessing.md
+      - rppgkit.cache: reference/cache.md
+      - rppgkit.cached_videos: reference/cached-videos.md
+      - Comparison with rPPG-Toolbox: reference/rppg-toolbox.md
+      - References: reference/references.md
+  - Explanation:
+      - How it works: how-it-works.md
+      - Design principles: design-principles.md
+
+theme:
+  name: material
+  # Brand assets live in assets/brand/; the header bar is coloured, so it takes the white mark.
+  logo: assets/rppgkit-mark-white.svg
+  icon:
+    repo: fontawesome/brands/github
+  favicon: assets/favicon.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
+  # Follows the system setting; the header toggle switches between the two.
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant # page changes without a full reload
+    - navigation.sections # Diátaxis sections as headings in the sidebar
+    - navigation.top # back-to-top button
+    - toc.follow # the page outline follows the scroll position
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate # numbered markers in code blocks open an explanation
+    - content.tabs.link # tabs with the same label switch together on a page
+
+# API reference pages are rendered from the Google-style docstrings in src/.
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            members_order: source
+            show_source: false
+            show_root_heading: true
+            show_signature_annotations: true
+            separate_signature: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.details # collapsible admonitions: ??? note
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  # Math between $...$ (inline) or $$...$$ (block), rendered by KaTeX (docs/javascripts/katex.js).
+  - pymdownx.arithmatex:
+      generic: true
+  # Includes files by path (e.g. the README, config files), so a text lives in one place.
+  - pymdownx.snippets:
+      base_path: [.]
+      check_paths: true
+
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js
+
+extra_css:
+  - stylesheets/extra.css
+  - https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css

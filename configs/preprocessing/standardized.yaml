@@ -1,0 +1,5 @@
+# Per-video z-score of face frames and PPG (T, H, W, 3) + (T,), e.g. for PhysNet.
+# Writes frames_standardized and ppg_standardized (float32). No settings. Part of the preprocessing cache key.
+# Nested under its name so several steps can be selected: preprocessing=[a,b].
+standardized:
+  _target_: rppgkit.preprocessing.standardize.Standardize

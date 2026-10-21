@@ -1,0 +1,20 @@
+# Stage 2: preprocess the ROI cache (run 1_extract_roi.py first), one cache per selected
+# step:
+#   uv run python scripts/2_preprocess.py dataset=ubfc_rppg roi=yolo5face36_tight preprocessing=[rgb_mean]
+#   uv run python scripts/2_preprocess.py preprocessing=[standardized,diff_normalized]
+#
+# dataset and roi must be the same as for 1_extract_roi.py: together they point to the
+# ROI cache to read. Use the same experiment file or overrides for both scripts.
+defaults:
+  - paths # configs/paths.yaml: cache_root
+  - dataset: ubfc_rppg # configs/dataset/<name>.yaml
+  - roi: yolo5face36_tight # configs/roi/<name>.yaml: which ROI cache to read
+  - preprocessing: [rgb_mean] # configs/preprocessing/<name>.yaml, a list
+  # SLURM resources for -m runs. configs/hydra/launcher/<name>.yaml
+  - override hydra/launcher: slurm_cpu
+  - _self_
+
+# false = skip videos already in the cache (a crashed job can just be rerun).
+# true = rebuild every video even if the config is unchanged, e.g. after fixing code
+# without bumping a `version` or rebuilding the ROI cache. Not part of the cache key.
+overwrite: false

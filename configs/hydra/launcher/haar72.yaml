@@ -1,0 +1,14 @@
+# SLURM resources for building the ROI cache with roi=haar72.
+# Measured on UBFC-rPPG (2026-09-24), Haar detection ms/frame by CPUs:
+#   1: 151 | 2: 86 | 4: 53 | 8: 39 | 16: 34 | 24: 33
+# 4 CPUs keeps 71% efficiency; 8 saves ~15 min but half the cores idle.
+defaults:
+  - slurm_cpu
+  - _self_
+
+# UBFC (65k frames) takes ~1 h at 4 CPUs.
+timeout_min: 120
+cpus_per_task: 4
+
+# Peak memory is ~2× the largest decoded video (UBFC ≈ 3 GB).
+mem_gb: 16

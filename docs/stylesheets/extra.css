@@ -1,0 +1,17 @@
+/* Brand colours from assets/brand/README.md. */
+:root > * {
+  --md-primary-fg-color: #9F1D35;
+  --md-primary-fg-color--light: #DEB0B9;
+  --md-primary-fg-color--dark: #7E172A;
+  --md-accent-fg-color: #9F1D35;
+  --md-accent-fg-color--transparent: #9F1D351A;
+}
+
+/* Plain oxblood is too dark on the slate background, so dark mode takes the lifted shade. */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #D9506A;
+  --md-primary-fg-color--light: #DEB0B9;
+  --md-primary-fg-color--dark: #9F1D35;
+  --md-accent-fg-color: #D9506A;
+  --md-accent-fg-color--transparent: #D9506A1A;
+}

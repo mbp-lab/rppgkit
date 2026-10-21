@@ -1,0 +1,5 @@
+# Mean R, G, B over the face per frame (T, 3), for classical methods (POS, CHROM, GREEN).
+# No settings. Part of the preprocessing cache key.
+# Nested under its name so several steps can be selected: preprocessing=[a,b].
+rgb_mean:
+  _target_: rppgkit.preprocessing.rgb_mean.RGBMean
