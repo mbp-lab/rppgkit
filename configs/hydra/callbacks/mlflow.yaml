@@ -1,0 +1,10 @@
+# Logs every run of a script to MLflow (rppgkit.tracking): one MLflow run per job,
+# one MLflow experiment per dataset. To run without it: hydra/callbacks=none.
+mlflow:
+  _target_: rppgkit.tracking.MLflowTracking
+
+  # The database every job writes to directly (no server needed).
+  tracking_uri: sqlite:///${mlflow_root}/mlflow.db
+
+  # Each run's files (config, metrics.json, logs), one subfolder per dataset.
+  artifact_root: ${mlflow_root}/artifacts

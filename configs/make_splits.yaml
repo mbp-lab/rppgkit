@@ -2,6 +2,9 @@
 #   uv run python scripts/3_make_splits.py dataset=ubfc_rppg split=kfold
 # Writes split.path; an existing file is never overwritten.
 defaults:
+  - paths # configs/paths.yaml: mlflow_root
   - dataset: ubfc_rppg # configs/dataset/<name>.yaml: whose subjects to split
   - split: kfold # configs/split/<name>.yaml: kfold or test_only
+  # MLflow tracking (configs/hydra/callbacks/); none = off.
+  - override hydra/callbacks: mlflow
   - _self_

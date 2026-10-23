@@ -6,3 +6,9 @@
 # Each dataset gets its own subfolder: <cache_root>/<dataset>/<stage>/<key>/.
 # Not part of the cache key.
 cache_root: /data/rppg_20_ubfc_video_nt_lab/processed/
+
+# >>> STUDENTS: REPLACE THIS PATH WITH YOUR OWN as well. <<<
+# SET ONCE: absolute path of the folder where your MLflow runs are logged
+# (mlflow.db and artifacts/). Created on the first run. View the runs with
+#   uv run mlflow ui --backend-store-uri sqlite:///<mlflow_root>/mlflow.db
+mlflow_root: /data/rppg_20_ubfc_video_nt_lab/mlflow

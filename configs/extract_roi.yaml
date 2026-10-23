@@ -6,6 +6,8 @@ defaults:
   - paths # configs/paths.yaml: cache_root
   - dataset: ubfc_rppg # configs/dataset/<name>.yaml
   - roi: yolo5face36_tight # configs/roi/<name>.yaml
+  # MLflow tracking (configs/hydra/callbacks/); none = off.
+  - override hydra/callbacks: mlflow
   # SLURM resources for -m runs; match the roi config. configs/hydra/launcher/<name>.yaml
   - override hydra/launcher: yolo5face
   - _self_

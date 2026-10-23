@@ -11,6 +11,8 @@ defaults:
   - split: test_only # configs/split/<name>.yaml: which subjects are train/val/test
   - method: pos # configs/method/<name>.yaml
   - evaluation: default # configs/evaluation/<name>.yaml: post-processing and heart rate
+  # MLflow tracking (configs/hydra/callbacks/); none = off.
+  - override hydra/callbacks: mlflow
   # SLURM resources for -m runs. configs/hydra/launcher/<name>.yaml
   - override hydra/launcher: slurm_cpu
   - _self_
