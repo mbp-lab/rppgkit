@@ -6,15 +6,22 @@ interest, here the face, cropped from every frame.
 
 ## Build the cache with the default settings
 
-On the login node, run:
+To submit the build as a SLURM job, run on the login node of the cluster:
 
 ```bash
 uv run python scripts/1_extract_roi.py -m
 ```
 
-This command uses YOLO5Face ([Qi et al., 2021](../reference/references.md#qi2021))
-with a tight 36 × 36 crop (`configs/roi/yolo5face36_tight.yaml`) and submits one GPU
-job. To run in your current shell instead, omit `-m`.
+To run the build locally in your current shell, omit `-m`:
+
+```bash
+uv run python scripts/1_extract_roi.py
+```
+
+Both commands use YOLO5Face ([Qi et al., 2021](../reference/references.md#qi2021))
+with a tight 36 × 36 crop (`configs/roi/yolo5face36_tight.yaml`). The SLURM job
+requests one GPU. A local run uses a GPU if one is available and the CPU otherwise.
+The examples below use `-m`; omit it in the same way for a local run.
 
 ## Use another ROI configuration
 
@@ -59,7 +66,7 @@ The job writes its files to `multirun/<date>/<time>/.submitit/<jobid>/`:
 To check the job, use the following commands:
 
 ```bash
-squeue -u $USER                                                  # queued and running jobs
+squeue --me                                                      # queued and running jobs
 tail -f multirun/<date>/<time>/.submitit/<jobid>/<jobid>_0_log.out   # follow the log
 sacct -j <jobid>                                                 # state and exit code
 seff <jobid>                                                     # CPU and memory used

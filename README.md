@@ -23,29 +23,33 @@ rppgkit requires [uv](https://docs.astral.sh/uv/). Clone the repository and inst
 the locked dependencies:
 
 ```bash
-git clone <repo-url> rppgkit && cd rppgkit
+git clone https://github.com/mbp-lab/rppgkit.git && cd rppgkit
 uv sync --locked
 ```
 
-Before the first run, set two paths:
+Before the first run, set three paths:
 
 - `root` in `configs/dataset/ubfc_rppg.yaml`: the UBFC-rPPG dataset folder.
 - `cache_root` in `configs/paths.yaml`: the folder in which caches are written.
+- `mlflow_root` in `configs/paths.yaml`: the folder in which MLflow logs the runs.
 
 ## Quick start
 
-The following commands evaluate POS on UBFC-rPPG:
+The following commands evaluate POS on UBFC-rPPG in the current shell:
 
 ```bash
-uv run python scripts/1_extract_roi.py -m                    # build the ROI cache (SLURM, GPU)
+uv run python scripts/1_extract_roi.py                       # build the ROI cache
 uv run python scripts/3_make_splits.py split=test_only       # create the test-only split
 uv run python scripts/evaluate.py method=pos split=test_only # write metrics.json
 ```
 
+To submit a script as a SLURM job instead, add `-m`. The resources are set in
+`configs/hydra/launcher/`.
+
 ## Documentation
 
 - Tutorial: [Your first POS evaluation](https://github.com/mbp-lab/rppgkit/blob/main/docs/tutorials/first-pos-evaluation.md), the quick start in detail.
-- How-to guides: [How to extract the ROI](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/extract-the-roi.md), [How to evaluate a method](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/evaluate-a-method.md).
+- How-to guides: [How to extract the ROI](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/extract-the-roi.md), [How to evaluate a method](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/evaluate-a-method.md), [How to track runs with MLflow](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/track-runs-with-mlflow.md), [How to run rppgkit on the lab cluster](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/run-on-the-lab-cluster.md).
 - Explanation: [How rppgkit works](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-it-works.md), [Design principles](https://github.com/mbp-lab/rppgkit/blob/main/docs/design-principles.md).
 - Reference: [References](https://github.com/mbp-lab/rppgkit/blob/main/docs/reference/references.md), full citations for the datasets, methods and tools used in rppgkit.
 

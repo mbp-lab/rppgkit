@@ -11,7 +11,7 @@ _target_: rppgkit.roi.face.cropper.FaceCropper
 output_size: 36
 
 # Box size = box_scale × the detected face box, same centre.
-# 1.0 = tight face; 1.5 includes forehead/chin/some background (rPPG-Toolbox default).
+# 1.0 = tight face; 1.5 includes forehead/chin/some background.
 box_scale: 1.0
 
 # true = square of box_scale × the longer side, shifted to fit inside the frame.

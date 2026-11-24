@@ -77,6 +77,10 @@ def main(cfg: DictConfig) -> None:
                 recording_key,
             )
 
+        # Every recording is in this step's cache, built now or in an earlier run.
+        cache.check_has_recordings(recording_keys)
+        log.info("%s cache complete: %d recordings", step_name, len(recording_keys))
+
 
 if __name__ == "__main__":
     main()

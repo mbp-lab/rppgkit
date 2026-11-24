@@ -75,6 +75,10 @@ def main(cfg: DictConfig) -> None:
             100 * n_detected / detection_stats["n_detections"],
         )
 
+    # --- Done: every recording is in the cache, built now or in an earlier run.
+    cache.check_has_recordings(recording_keys)
+    log.info("roi cache complete: %d recordings in %s", len(recording_keys), cache.dir)
+
 
 if __name__ == "__main__":
     main()

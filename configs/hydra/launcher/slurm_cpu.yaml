@@ -7,8 +7,9 @@ _target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
 # SLURM logs (stdout/stderr) per job.
 submitit_folder: ${hydra.sweep.dir}/.submitit/%j
 
-# null = cluster default partition (`sinfo -s`, marked with *). On our cluster that is `gpu`.
-partition: null
+# CPU-only nodes of the lab cluster; the cluster default partition (`gpu`) would
+# place CPU-only jobs on GPU nodes. null = cluster default (`sinfo -s`, marked with *).
+partition: cpu
 
 # Job time limit in minutes.
 timeout_min: 60
@@ -19,3 +20,9 @@ gpus_per_node: 0
 nodes: 1
 tasks_per_node: 1
 name: ${hydra.job.name}
+
+# Passed to sbatch as --<key>; launchers that add keys (e.g. gres) keep these.
+additional_parameters:
+  # Email to your TechFak account when a job ends or fails. A -m sweep is one job
+  # array, which sends one email for the whole array, not one per job.
+  mail_type: END,FAIL
