@@ -16,3 +16,14 @@ multirun/
 # IDE settings
 .idea/
 notes/
+
+# Documentation site built by mkdocs (published by .github/workflows/docs.yml)
+site/
+
+# Local Claude Code settings and worktrees
+.claude/
+
+# Personal notes and design exports
+notes.md
+*.zip
+*@2x.png
