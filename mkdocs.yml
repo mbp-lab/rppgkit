@@ -13,6 +13,8 @@ nav:
   - How-to guides:
       - How to extract the ROI: how-to/extract-the-roi.md
       - How to evaluate a method: how-to/evaluate-a-method.md
+      - How to track runs with MLflow: how-to/track-runs-with-mlflow.md
+      - How to run rppgkit on the lab cluster: how-to/run-on-the-lab-cluster.md
   - Reference:
       - rppgkit.recording: reference/recording.md
       - rppgkit.roi: reference/roi.md

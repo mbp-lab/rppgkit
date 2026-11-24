@@ -24,7 +24,8 @@ and use the same path when you evaluate.
 uv run python scripts/evaluate.py -m method=pos split=test_only
 ```
 
-To run in your current shell instead of a SLURM job, omit `-m`.
+The `-m` option submits the script as a SLURM job. To run it locally in your current
+shell instead, omit `-m`; this applies to every command in this guide.
 
 ## Evaluate on k-fold splits
 

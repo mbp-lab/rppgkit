@@ -1,6 +1,5 @@
 # Post-processing applied identically to prediction and ground truth, then heart rate
-# from the highest FFT peak in the band. Defaults match rPPG-Toolbox
-# (evaluation/post_process.py) so numbers are comparable.
+# from the highest FFT peak in the band.
 _target_: rppgkit.evaluation.EvaluationSettings
 
 # Smoothness-priors detrending strength (Tarvainen et al., 2002).

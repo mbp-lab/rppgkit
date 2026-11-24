@@ -79,7 +79,7 @@ class YOLO5FaceDetector:
 
         image = torch.from_numpy(padded.transpose(2, 0, 1).copy()).to(self.device)
         image = image.float().unsqueeze(0) / 255.0
-        prediction = self.model(image)[0]
+        prediction = self.model(image)[0]  # TODO: Why the [0] ?
         detections = non_max_suppression_face(
             prediction, self.conf_threshold, self.iou_threshold
         )[0]

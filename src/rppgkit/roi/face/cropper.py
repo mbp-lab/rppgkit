@@ -97,10 +97,15 @@ class FaceCropper:
 
         height, width = record.frames.shape[1:3]
         detection_boxes = [
+            # TODO:if we have the right crop size it shoudl be directly applied at resize, this is mearly a
+            # conversion from one config to the other which doesnt make sense.
             self._crop_region(box, height, width)
             for box in _fill_failed_detections(detections)
         ]
         # Each box holds for detect_every frames, until the next detection.
+        # TODO: This is wrong when you have multiple different frames, or its the wrong logic
+        # it should in theory repeat and then take a current frame after n frames, here its just randomly assigning
+        # frames to random points, this is not a problem when there is repeat is 1 but fails when its >1
         boxes = np.repeat(
             np.array(detection_boxes, dtype=np.int32), self.detect_every, axis=0
         )
@@ -147,6 +152,7 @@ class FaceCropper:
 
 def _fill_failed_detections(detections: list[Box | None]) -> list[Box]:
     """Replaces `None` with the last detected box, or the first for leading failures."""
+    # TODO: This can be made much easier to read
     first = next(box for box in detections if box is not None)
     filled, last = [], first
     for box in detections:

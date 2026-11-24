@@ -8,18 +8,25 @@ the heart-rate error over all 42 subjects.
 
 ## Prerequisites
 
-- Access to the cluster and its `gpu` partition.
 - [uv](https://docs.astral.sh/uv/) installed.
 - The UBFC-rPPG dataset. Each subject folder, for example `subject1/`, contains
   `vid.avi` and `ground_truth.txt`.
+- For the SLURM variant: access to a SLURM cluster with a GPU partition.
 
-Steps 3 and 5 run a script. Use the SLURM variant on the cluster login node, or the
-Local variant in a shell on a GPU node. With SLURM, the log of the script is written to
-`multirun/<date>/<time>/.submitit/<jobid>/<jobid>_0_log.out` instead of the terminal.
+Steps 3 and 5 run a script in one of two variants:
+
+- SLURM: the script is submitted as a SLURM job with `-m`. Run the command on the
+  login node of the cluster. The log of the script is written to
+  `multirun/<date>/<time>/.submitit/<jobid>/<jobid>_0_log.out` instead of the
+  terminal.
+- Local: the script runs directly in your current shell, without `-m`. The log is
+  written to the terminal. The face detector uses a GPU if one is available and the
+  CPU otherwise, which is slower.
 
 ## Step 1: Install rppgkit
 
-On the login node, clone the repository and install the dependencies:
+Clone the repository and install the dependencies. For the SLURM variant, do this on
+the login node of the cluster.
 
 ```bash
 git clone https://github.com/mbp-lab/rppgkit.git
@@ -57,10 +64,7 @@ steps read from it.
 
 === "Local"
 
-    Open a shell on a GPU node and run the script:
-
     ```bash
-    srun --partition=gpu --gres=gpu:a40:1 --pty bash
     uv run python scripts/1_extract_roi.py
     ```
 

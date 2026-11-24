@@ -9,4 +9,4 @@ name: ubfc_rppg
 # The path below is the maintainer's copy of UBFC-rPPG.
 # SET ONCE when you set up: absolute path of the folder containing the subject<N>/
 # folders. Not part of the cache key.
-root: /data/rppg_20_ubfc_video_nt_lab/raw/
+root: /vol/rppg-challenge/raw/
