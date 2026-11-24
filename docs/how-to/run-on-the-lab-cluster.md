@@ -9,6 +9,27 @@ All jobs in this guide are submitted from the login node of the cluster. To run 
 script interactively on a compute node instead, see
 [Run a script interactively](#run-a-script-interactively).
 
+## Prerequisites
+
+- An account on the cluster: membership in the UNIX group `gpuv2`. To request it,
+  follow the cluster's
+  [getting started guide](https://citec-gpu-cluster.pages.ub.uni-bielefeld.de/documentation/getting-started/).
+- A connection from within the TechFak network (CITEC WiFi or wired network,
+  `shell.techfak.de`, or the VPN), so that you can log in to the login node:
+
+    ```bash
+    ssh <user>@login-1.gpu.cit-ec.net
+    ```
+
+- [uv](https://docs.astral.sh/uv/) installed in your home directory on the cluster:
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
+- Read access to `/vol/rppg-challenge/`, and write access to
+  `/vol/rppg-challenge/processed/` to build caches.
+
 ## Set up rppgkit on the cluster
 
 1. On the login node, clone the repository and install the dependencies:
