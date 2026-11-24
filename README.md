@@ -48,17 +48,19 @@ To submit a script as a SLURM job instead, add `-m`. The resources are set in
 
 ## Documentation
 
-- Tutorial: [Your first POS evaluation](https://github.com/mbp-lab/rppgkit/blob/main/docs/tutorials/first-pos-evaluation.md), the quick start in detail.
-- How-to guides: [How to extract the ROI](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/extract-the-roi.md), [How to evaluate a method](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/evaluate-a-method.md), [How to track runs with MLflow](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/track-runs-with-mlflow.md), [How to run rppgkit on the lab cluster](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-to/run-on-the-lab-cluster.md).
-- Explanation: [How rppgkit works](https://github.com/mbp-lab/rppgkit/blob/main/docs/how-it-works.md), [Design principles](https://github.com/mbp-lab/rppgkit/blob/main/docs/design-principles.md).
-- Reference: [References](https://github.com/mbp-lab/rppgkit/blob/main/docs/reference/references.md), full citations for the datasets, methods and tools used in rppgkit.
+The documentation is hosted at <https://mbp-lab.github.io/rppgkit/>.
+
+- Tutorial: [Your first POS evaluation](https://mbp-lab.github.io/rppgkit/tutorials/first-pos-evaluation/), the quick start in detail.
+- How-to guides: [How to extract the ROI](https://mbp-lab.github.io/rppgkit/how-to/extract-the-roi/), [How to evaluate a method](https://mbp-lab.github.io/rppgkit/how-to/evaluate-a-method/), [How to track runs with MLflow](https://mbp-lab.github.io/rppgkit/how-to/track-runs-with-mlflow/), [How to run rppgkit on the lab cluster](https://mbp-lab.github.io/rppgkit/how-to/run-on-the-lab-cluster/).
+- Explanation: [How rppgkit works](https://mbp-lab.github.io/rppgkit/how-it-works/), [Design principles](https://mbp-lab.github.io/rppgkit/design-principles/).
+- Reference: [References](https://mbp-lab.github.io/rppgkit/reference/references/), full citations for the datasets, methods and tools used in rppgkit.
 
 ### Building the documentation locally
 
-The documentation is not yet hosted online and must be built from a local clone. The
-pages are in `docs/`, the site configuration is in `mkdocs.yml`, and the API reference
-is generated from the docstrings in `src/`. The build requires only the `docs`
-dependency group:
+The site is built from a local clone when you change the documentation. The pages are
+in `docs/`, the site configuration is in `mkdocs.yml`, and the API reference is
+generated from the docstrings in `src/`. The build requires only the `docs` dependency
+group:
 
 ```bash
 uv run --only-group docs mkdocs serve   # live preview at http://127.0.0.1:8000
