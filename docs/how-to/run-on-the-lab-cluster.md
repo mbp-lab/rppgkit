@@ -9,30 +9,48 @@ All jobs in this guide are submitted from the login node of the cluster. To run 
 script interactively on a compute node instead, see
 [Run a script interactively](#run-a-script-interactively).
 
+## Prerequisites
+
+- A connection from within the TechFak network (CITEC WiFi or wired network,
+  `shell.techfak.de`, or the VPN), so that you can log in to the login node:
+
+  ```bash
+  ssh <user>@login-1.gpu.cit-ec.net
+  ```
+
+- [uv](https://docs.astral.sh/uv/) installed in your home directory on the cluster:
+
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+
+- Read access to `/vol/rppg-challenge/`, and write access to
+  `/vol/rppg-challenge/processed/` to build caches.
+
 ## Set up rppgkit on the cluster
 
 1. On the login node, clone the repository and install the dependencies:
 
-    ```bash
-    git clone https://github.com/mbp-lab/rppgkit.git
-    cd rppgkit
-    uv sync --locked
-    ```
+   ```bash
+   git clone https://github.com/mbp-lab/rppgkit.git
+   cd rppgkit
+   uv sync --locked
+   ```
 
 2. Check that the configured folders exist on the cluster. The paths are already set
    for the lab cluster:
 
-    | File | Key | Path | Content |
-    |---|---|---|---|
-    | `configs/dataset/ubfc_rppg.yaml` | `root` | `/vol/rppg-challenge/raw/` | the subject folders of UBFC-rPPG |
-    | `configs/paths.yaml` | `cache_root` | `/vol/rppg-challenge/processed/` | the caches |
-    | `configs/paths.yaml` | `mlflow_root` | `~/rppgkit/mlflow_demo/` | the MLflow runs |
+   | File                             | Key           | Path                             | Content                          |
+   | -------------------------------- | ------------- | -------------------------------- | -------------------------------- |
+   | `configs/dataset/ubfc_rppg.yaml` | `root`        | `/vol/rppg-challenge/raw/`       | the subject folders of UBFC-rPPG |
+   | `configs/paths.yaml`             | `cache_root`  | `/vol/rppg-challenge/processed/` | the caches                       |
+   | `configs/paths.yaml`             | `mlflow_root` | `~/rppgkit/mlflow_demo/`         | the MLflow runs                  |
 
-    ```bash
-    ls /vol/rppg-challenge/raw/ /vol/rppg-challenge/processed/
-    ```
+   ```bash
+   ls /vol/rppg-challenge/raw/ /vol/rppg-challenge/processed/
+   ```
 
-    The first folder contains one folder per subject, for example `subject1/`.
+   The first folder contains one folder per subject, for example `subject1/`.
 
 ## Run a POS evaluation
 
@@ -41,29 +59,29 @@ commands from the repository folder on the login node.
 
 1. Build the ROI cache with YOLO5Face. The job runs on the `gpu` partition:
 
-    ```bash
-    uv run python scripts/1_extract_roi.py -m
-    ```
+   ```bash
+   uv run python scripts/1_extract_roi.py -m
+   ```
 
 2. Create the split file. It only reads the subject list of the dataset, so run it
    without `-m`; it then runs on the login node and does not submit a job:
 
-    ```bash
-    uv run python scripts/3_make_splits.py split=test_only
-    ```
+   ```bash
+   uv run python scripts/3_make_splits.py split=test_only
+   ```
 
 3. Wait until the job of step 1 has finished. It no longer appears in the list of
    your jobs:
 
-    ```bash
-    squeue --me
-    ```
+   ```bash
+   squeue --me
+   ```
 
 4. Evaluate POS. The job runs on the `cpu` partition and requests no GPU:
 
-    ```bash
-    uv run python scripts/evaluate.py -m method=pos split=test_only
-    ```
+   ```bash
+   uv run python scripts/evaluate.py -m method=pos split=test_only
+   ```
 
 The evaluation writes `metrics.json` to `multirun/<date>/<time>/0/`.
 
@@ -189,23 +207,23 @@ preprocessing and evaluation of methods without training, such as POS, run on th
 alone. With `-m`, each script requests the resources of the launcher file named in its
 configuration, in `configs/hydra/launcher/`:
 
-| Script | Hardware | Launcher | Partition | GPUs | CPU cores | Memory | Time limit |
-|---|---|---|---|---|---|---|---|
-| `1_extract_roi.py` with `roi=yolo5face*` | GPU | `yolo5face` | `gpu` | 1 × A40 | 4 | 16 GB | 120 min |
-| `1_extract_roi.py` with `roi=haar72` | CPU | `haar72` | `cpu` | none | 4 | 16 GB | 120 min |
-| `2_preprocess.py` | CPU | `slurm_cpu` | `cpu` | none | 1 | 4 GB | 60 min |
-| `3_make_splits.py` | CPU | none | none | none | – | – | – |
-| `evaluate.py` | CPU | `slurm_cpu` | `cpu` | none | 1 | 4 GB | 60 min |
-| `train.py` | GPU | `gpu` | `gpu` | 1 × A40 | 5 | 32 GB | 240 min |
+| Script                                   | Hardware | Launcher    | Partition | GPUs    | CPU cores | Memory | Time limit |
+| ---------------------------------------- | -------- | ----------- | --------- | ------- | --------- | ------ | ---------- |
+| `1_extract_roi.py` with `roi=yolo5face*` | GPU      | `yolo5face` | `gpu`     | 1 × A40 | 4         | 16 GB  | 120 min    |
+| `1_extract_roi.py` with `roi=haar72`     | CPU      | `haar72`    | `cpu`     | none    | 4         | 16 GB  | 120 min    |
+| `2_preprocess.py`                        | CPU      | `slurm_cpu` | `cpu`     | none    | 1         | 4 GB   | 60 min     |
+| `3_make_splits.py`                       | CPU      | none        | none      | none    | –         | –      | –          |
+| `evaluate.py`                            | CPU      | `slurm_cpu` | `cpu`     | none    | 1         | 4 GB   | 60 min     |
+| `train.py`                               | GPU      | `gpu`       | `gpu`     | 1 × A40 | 5         | 32 GB  | 240 min    |
 
 ## Partitions of the lab cluster
 
-| Partition | Nodes | GPUs per node | GPU memory | CPU cores per node | RAM per node |
-|---|---|---|---|---|---|
-| `cpu` | `assistant-[1-4]` | none | – | 64 | 443 GB |
-| `study` | `servant-[1,2]` | 2 × Tesla P100 | 16 GB | 2 × 20 | 216 GB |
-| `study` | `servant-[4,5]` | 2 × GTX 1080 Ti | 11 GB | 2 × 20 | 108 GB |
-| `gpu` | `worker-[1-11]` | 4 × A40 | 46 GB | 120 | 443 GB |
-| `hopper` | `worker-[12-15]` | 4 × H200 | 140 GB | 180 | 672 GB |
+| Partition | Nodes             | GPUs per node   | GPU memory | CPU cores per node | RAM per node |
+| --------- | ----------------- | --------------- | ---------- | ------------------ | ------------ |
+| `cpu`     | `assistant-[1-4]` | none            | –          | 64                 | 443 GB       |
+| `study`   | `servant-[1,2]`   | 2 × Tesla P100  | 16 GB      | 2 × 20             | 216 GB       |
+| `study`   | `servant-[4,5]`   | 2 × GTX 1080 Ti | 11 GB      | 2 × 20             | 108 GB       |
+| `gpu`     | `worker-[1-11]`   | 4 × A40         | 46 GB      | 120                | 443 GB       |
+| `hopper`  | `worker-[12-15]`  | 4 × H200        | 140 GB     | 180                | 672 GB       |
 
 To list the partitions and their current state, run `sinfo -s`.
