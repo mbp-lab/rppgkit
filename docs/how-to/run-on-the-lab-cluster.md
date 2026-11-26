@@ -34,7 +34,6 @@ script interactively on a compute node instead, see
    ```bash
    git clone https://github.com/mbp-lab/rppgkit.git
    cd rppgkit
-   uv sync --locked
    ```
 
 2. Check that the configured folders exist on the cluster. The paths are already set
