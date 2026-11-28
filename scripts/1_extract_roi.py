@@ -32,13 +32,13 @@ def main(cfg: DictConfig) -> None:
     # --- ROI: the extractor (e.g. the face detector) and the cache it writes to,
     # and which recordings are not in that cache yet.
     roi_extractor = instantiate(cfg.roi)
-    cache = StageCache.for_roi(cfg)
-    cache.write_config()
-    log.info("roi cache: %s", cache.dir)
+    roi_cache = StageCache.from_config_for_roi(cfg)
+    roi_cache.write_config()
+    log.info("roi cache: %s", roi_cache.dir)
     recordings_to_build = (
         recording_keys
         if cfg.overwrite
-        else cache.recordings_not_in_cache(recording_keys)
+        else roi_cache.recordings_not_in_cache(recording_keys)
     )
     log.info(
         "building %d/%d recordings (overwrite=%s)",
@@ -53,7 +53,7 @@ def main(cfg: DictConfig) -> None:
         roi_video, boxes, detection_stats = roi_extractor(
             dataset_reader.read(recording_key)
         )
-        cache.write_recording(
+        roi_cache.write_recording(
             recording_key,
             {"frames": roi_video.frames, "ppg": roi_video.ppg, "boxes": boxes},
             {
@@ -76,8 +76,10 @@ def main(cfg: DictConfig) -> None:
         )
 
     # --- Done: every recording is in the cache, built now or in an earlier run.
-    cache.check_has_recordings(recording_keys)
-    log.info("roi cache complete: %d recordings in %s", len(recording_keys), cache.dir)
+    roi_cache.check_has_recordings(recording_keys)
+    log.info(
+        "roi cache complete: %d recordings in %s", len(recording_keys), roi_cache.dir
+    )
 
 
 if __name__ == "__main__":

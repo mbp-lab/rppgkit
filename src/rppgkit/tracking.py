@@ -32,7 +32,7 @@ from mlflow.entities import Param
 from mlflow.exceptions import MlflowException
 from omegaconf import DictConfig, OmegaConf
 
-from rppgkit.cache import StageCache, plain_config, preprocessing_caches
+from rppgkit.cache import StageCache, plain_config, preprocessing_caches_from_config
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_DIR.parents[1]
@@ -240,12 +240,14 @@ class MLflowTracking(Callback):
 
         # Caches: the ones built (1_extract_roi, 2_preprocess) or read (evaluate, train).
         if "roi" in config:
-            roi = StageCache.for_roi(config)
-            caches = {"roi": roi}
+            roi_cache = StageCache.from_config_for_roi(config)
+            caches = {"roi": roi_cache}
             if "preprocessing" in config:
                 caches |= {
-                    f"preprocessing.{name}": cache
-                    for name, cache in preprocessing_caches(config, roi).items()
+                    f"preprocessing.{name}": step_cache
+                    for name, step_cache in preprocessing_caches_from_config(
+                        config, roi_cache
+                    ).items()
                 }
             for name, cache in caches.items():
                 mlflow.set_tag(f"{name}_cache_key", cache.key)
@@ -338,7 +340,7 @@ def _run_name(config: DictConfig, with_fold: bool = True) -> str:
     steps = list(config.get("preprocessing", {}))
     match config.hydra.job.config_name:
         case "extract_roi":
-            parts = [choices.roi, StageCache.for_roi(config).key[:6]]
+            parts = [choices.roi, StageCache.from_config_for_roi(config).key[:6]]
         case "preprocess":
             parts = [*steps, choices.roi]
         case "make_splits":

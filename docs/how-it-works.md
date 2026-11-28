@@ -147,23 +147,26 @@ the same command. With `overwrite=true`, all recordings are rebuilt.
 
 ### Access from code
 
-A `StageCache` (`cache.py`) represents one cache folder: its stage, its key, its folder
-and the configuration from which the key is computed. We always construct it from the
-run configuration, never by hand, so that every script computes the same key from the
-same settings:
+A `StageCache` (`cache.py`) is a handle to one cache. It identifies the cache (its
+stage, its key and the configuration from which the key is computed), locates it (its
+folder) and gives access to it: it checks which recordings the cache holds and reads
+and writes them. It does not hold the cached arrays; `read_recording` loads them from
+disk. We always construct the handle from the run configuration, never by hand, so
+that every script computes the same key from the same settings:
 
-- `StageCache.for_roi(cfg)` returns the ROI cache. Its key is computed from the
-  `dataset` and `roi` configurations.
-- `StageCache.for_preprocessing(cfg, step_name, roi)` returns the cache of one
-  preprocessing step. Its key is computed from the key of the ROI cache `roi` and the
-  configuration of that step. The ROI cache is passed as an argument because a
-  preprocessing cache is defined only relative to the ROI cache from which it was
-  built.
-- `preprocessing_caches(cfg, roi)` returns the cache of every step listed in
-  `preprocessing`, by step name.
+- `StageCache.from_config_for_roi(cfg)` returns the handle to the ROI cache. Its key
+  is computed from the `dataset` and `roi` configurations.
+- `StageCache.from_config_for_preprocessing(cfg, step_name, roi_cache)` returns the
+  handle to the cache of one preprocessing step. Its key is computed from the key of
+  the ROI cache `roi_cache` and the configuration of that step. The ROI cache is
+  passed as an argument because a preprocessing cache is defined only relative to the
+  ROI cache from which it was built.
+- `preprocessing_caches_from_config(cfg, roi_cache)` returns the handle to the cache
+  of every step listed in `preprocessing`, by step name.
 
-Constructing a `StageCache` neither reads from nor writes to disk, so the cache need
-not exist yet. The scripts use the caches as follows:
+Constructing a handle neither reads from nor writes to disk, so the cache need not
+exist yet. In the scripts, the handles are named after the caches they give access
+to: `roi_cache`, `preprocessing_caches` and, for one step, `step_cache`. The scripts use the caches as follows:
 
 | Script | Writes | Reads |
 |---|---|---|

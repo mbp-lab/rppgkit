@@ -64,8 +64,8 @@ def load_fold(
 def predict_and_evaluate(
     method: Method,
     recording_keys: list[RecordingKey],
-    roi: StageCache,
-    preprocessing: dict[str, StageCache],
+    roi_cache: StageCache,
+    preprocessing_caches: dict[str, StageCache],
     evaluation_settings: EvaluationSettings,
 ) -> tuple[list[dict], dict]:
     """Predicts every test recording without labels and evaluates the predictions.
@@ -76,15 +76,16 @@ def predict_and_evaluate(
     Args:
         method: A method ready to predict (trained, if trainable).
         recording_keys: The test recordings.
-        roi: The ROI cache; also provides the ground-truth PPG.
-        preprocessing: The preprocessing caches by step name; may be empty.
+        roi_cache: The handle to the ROI cache; also provides the ground-truth PPG.
+        preprocessing_caches: The handles to the preprocessing caches by step name;
+            may be empty.
         evaluation_settings: Post-processing, estimator and windowing.
 
     Returns:
         The `(rows, metrics)` of `evaluate`.
     """
     videos = load_cached_videos(
-        recording_keys, roi, preprocessing, method.needs, with_labels=False
+        recording_keys, roi_cache, preprocessing_caches, method.needs, with_labels=False
     )
     predictions = {}
     for i, video in enumerate(videos, 1):
@@ -92,7 +93,9 @@ def predict_and_evaluate(
         log.info("[%d/%d] %s: predicted", i, len(videos), video.key)
 
     # Ground truth: raw PPG straight from the ROI cache, never through the method.
-    ground_truth = {key: roi.read_recording(key)[0]["ppg"] for key in recording_keys}
+    ground_truth = {
+        key: roi_cache.read_recording(key)[0]["ppg"] for key in recording_keys
+    }
     fps = {video.key: video.fps for video in videos}
     rows, metrics = evaluate(predictions, ground_truth, fps, evaluation_settings)
     if metrics["n_failed_predictions"] or metrics["n_failed_ground_truths"]:

@@ -17,7 +17,7 @@ import hydra
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 
-from rppgkit.cache import StageCache, preprocessing_caches
+from rppgkit.cache import StageCache, preprocessing_caches_from_config
 
 log = logging.getLogger(__name__)
 
@@ -35,21 +35,22 @@ def main(cfg: DictConfig) -> None:
     log.info("dataset %s: %d recordings", dataset_reader.name, len(recording_keys))
 
     # --- ROI cache: the input of every step; must hold every recording.
-    roi = StageCache.for_roi(cfg)
-    roi.check_has_recordings(recording_keys)
-    log.info("roi cache: %s", roi.dir)
+    roi_cache = StageCache.from_config_for_roi(cfg)
+    roi_cache.check_has_recordings(recording_keys)
+    log.info("roi cache: %s", roi_cache.dir)
 
     # --- Preprocess, one step at a time: the step, the cache it writes to and which
     # recordings are not in that cache yet, then each recording read, processed and
     # written.
-    for step_name, cache in preprocessing_caches(cfg, roi).items():
+    preprocessing_caches = preprocessing_caches_from_config(cfg, roi_cache)
+    for step_name, step_cache in preprocessing_caches.items():
         preprocessing_step = instantiate(cfg.preprocessing[step_name])
-        cache.write_config()
-        log.info("%s cache: %s", step_name, cache.dir)
+        step_cache.write_config()
+        log.info("%s cache: %s", step_name, step_cache.dir)
         recordings_to_build = (
             recording_keys
             if cfg.overwrite
-            else cache.recordings_not_in_cache(recording_keys)
+            else step_cache.recordings_not_in_cache(recording_keys)
         )
         log.info(
             "%s: building %d/%d recordings (overwrite=%s)",
@@ -59,8 +60,8 @@ def main(cfg: DictConfig) -> None:
             cfg.overwrite,
         )
         for i, recording_key in enumerate(recordings_to_build, 1):
-            roi_arrays, roi_meta = roi.read_recording(recording_key)
-            cache.write_recording(
+            roi_arrays, roi_meta = roi_cache.read_recording(recording_key)
+            step_cache.write_recording(
                 recording_key,
                 preprocessing_step(roi_arrays["frames"], roi_arrays["ppg"]),
                 {
@@ -78,7 +79,7 @@ def main(cfg: DictConfig) -> None:
             )
 
         # Every recording is in this step's cache, built now or in an earlier run.
-        cache.check_has_recordings(recording_keys)
+        step_cache.check_has_recordings(recording_keys)
         log.info("%s cache complete: %d recordings", step_name, len(recording_keys))
 
 

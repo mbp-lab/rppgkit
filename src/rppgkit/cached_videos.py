@@ -59,14 +59,16 @@ def select_recordings(
 
 
 def _read_arrays(
-    key: RecordingKey, roi: StageCache, preprocessing: dict[str, StageCache]
+    key: RecordingKey,
+    roi_cache: StageCache,
+    preprocessing_caches: dict[str, StageCache],
 ) -> tuple[dict, dict]:
     """Reads all arrays of one recording from the caches and the ROI cache metadata.
 
     Args:
         key: The recording to read.
-        roi: The ROI cache.
-        preprocessing: The preprocessing caches by step name.
+        roi_cache: The handle to the ROI cache.
+        preprocessing_caches: The handles to the preprocessing caches by step name.
 
     Returns:
         A tuple `(arrays, meta)` of all arrays by name and the `meta.json` of the ROI
@@ -75,9 +77,9 @@ def _read_arrays(
     Raises:
         ValueError: If an array name is in more than one cache.
     """
-    arrays, roi_meta = roi.read_recording(key)
-    for cache in preprocessing.values():
-        step_arrays, _ = cache.read_recording(key)
+    arrays, roi_meta = roi_cache.read_recording(key)
+    for step_cache in preprocessing_caches.values():
+        step_arrays, _ = step_cache.read_recording(key)
         if clash := arrays.keys() & step_arrays.keys():
             raise ValueError(f"{key}: {sorted(clash)} in more than one cache")
         arrays |= step_arrays
@@ -86,8 +88,8 @@ def _read_arrays(
 
 def load_cached_videos(
     keys: list[RecordingKey],
-    roi: StageCache,
-    preprocessing: dict[str, StageCache],
+    roi_cache: StageCache,
+    preprocessing_caches: dict[str, StageCache],
     needs: tuple[str, ...],
     with_labels: bool,
 ) -> list[CachedVideo]:
@@ -95,9 +97,9 @@ def load_cached_videos(
 
     Args:
         keys: The recordings to load.
-        roi: The ROI cache, which also provides the frame rate.
-        preprocessing: The preprocessing caches by step name, empty if the method
-            requires only arrays from the ROI cache.
+        roi_cache: The handle to the ROI cache, which also provides the frame rate.
+        preprocessing_caches: The handles to the preprocessing caches by step name,
+            empty if the method requires only arrays from the ROI cache.
         needs: Names of the arrays to keep, i.e. the `needs` of the method.
         with_labels: Whether to keep label arrays (names beginning with
             `LABEL_PREFIX`). If `False`, as for test recordings, required label
@@ -113,7 +115,7 @@ def load_cached_videos(
     """
     videos = []
     for key in keys:
-        arrays, meta = _read_arrays(key, roi, preprocessing)
+        arrays, meta = _read_arrays(key, roi_cache, preprocessing_caches)
         if missing := [name for name in needs if name not in arrays]:
             raise KeyError(f"{key}: needs {missing}, caches have {sorted(arrays)}")
         kept_names = [

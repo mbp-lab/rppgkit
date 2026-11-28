@@ -11,9 +11,11 @@ and include the `version` of every class named by a `_target_`, so that code cha
 also invalidate caches. A recording folder appears only once it has been fully
 written; an existing folder is therefore complete.
 
-`StageCache.for_roi` and `StageCache.for_preprocessing` are the only places that
-compute keys and folders. `1_extract_roi.py` and `2_preprocess.py` write through the
-returned `StageCache`; all other scripts only read.
+A `StageCache` is a handle to one such cache: its key, its folder and the methods that
+read and write it. `StageCache.from_config_for_roi` and
+`StageCache.from_config_for_preprocessing` are the only places that compute keys and
+folders; they return the handle without touching the disk. `1_extract_roi.py` and
+`2_preprocess.py` write through the handle; all other scripts only read.
 """
 
 import hashlib
@@ -90,20 +92,25 @@ def compute_cache_key(config: Any, excluded: set[str] = CACHE_KEY_EXCLUDED) -> s
 
 @dataclass(frozen=True)
 class StageCache:
-    """The cache of one pipeline stage, `<cache_root>/<dataset>/<stage>/<key>/`.
+    """A handle to the cache of one pipeline stage, `<cache_root>/<dataset>/<stage>/<key>/`.
 
-    Instances are built from a run configuration with `for_roi` or `for_preprocessing`
-    (or `preprocessing_caches` for all selected steps), never by hand, so that every
-    script computes the same key from the same settings. Direct construction is
-    reserved for tests that use a folder of their own.
+    The handle identifies the cache (`key`, `config`), locates it (`dir`) and gives
+    access to it: it checks which recordings the cache holds and reads and writes them.
+    It does not hold the cached arrays; `read_recording` loads them from disk.
+
+    Instances are built from a run configuration with `from_config_for_roi` or
+    `from_config_for_preprocessing` (or `preprocessing_caches_from_config` for all
+    selected steps), never by hand, so that every script computes the same key from
+    the same settings. Direct construction is reserved for tests that use a folder of
+    their own.
 
     Example:
         ```python
-        roi = StageCache.for_roi(cfg)
-        preprocessing = preprocessing_caches(cfg, roi)
-        for cache in [roi, *preprocessing.values()]:
+        roi_cache = StageCache.from_config_for_roi(cfg)
+        preprocessing_caches = preprocessing_caches_from_config(cfg, roi_cache)
+        for cache in [roi_cache, *preprocessing_caches.values()]:
             cache.check_has_recordings(recording_keys)
-        arrays, meta = roi.read_recording(recording_keys[0])
+        arrays, meta = roi_cache.read_recording(recording_keys[0])
         ```
 
     Attributes:
@@ -120,48 +127,53 @@ class StageCache:
     config: dict[str, Any]
 
     @classmethod
-    def for_roi(cls, cfg: Any) -> "StageCache":
-        """Returns the ROI cache of a run configuration.
+    def from_config_for_roi(cls, cfg: Any) -> "StageCache":
+        """Returns the handle to the ROI cache of a run configuration.
 
-        The cache need not have been built yet.
+        Only the key and folder are computed; nothing is read from or written to disk,
+        so the cache need not have been built yet.
 
         Args:
             cfg: The run configuration, with `cache_root`, `dataset` (with `name`) and
                 `roi`.
 
         Returns:
-            The ROI cache, whose key is computed from the `dataset` and `roi`
-            configurations.
+            The handle to the ROI cache, whose key is computed from the `dataset` and
+            `roi` configurations.
         """
         config = plain_config({"dataset": cfg.dataset, "roi": cfg.roi})
         return cls._keyed(cfg, "roi", config)
 
     @classmethod
-    def for_preprocessing(
-        cls, cfg: Any, step_name: str, roi: "StageCache"
+    def from_config_for_preprocessing(
+        cls, cfg: Any, step_name: str, roi_cache: "StageCache"
     ) -> "StageCache":
-        """Returns the cache of one preprocessing step.
+        """Returns the handle to the cache of one preprocessing step.
 
-        The cache need not have been built yet.
+        Only the key and folder are computed; nothing is read from or written to disk,
+        so the cache need not have been built yet.
 
         Args:
             cfg: The run configuration, with `cache_root`, `dataset` (with `name`) and
                 `preprocessing` (steps by name).
             step_name: The name of the step in `cfg.preprocessing`.
-            roi: The ROI cache that the step reads.
+            roi_cache: The handle to the ROI cache that the step reads.
 
         Returns:
-            The cache of the step, whose key is computed from the ROI key and the
-            configuration of the step.
+            The handle to the cache of the step, whose key is computed from the ROI key
+            and the configuration of the step.
         """
         config = plain_config(
-            {"roi_cache_key": roi.key, "preprocessing": cfg.preprocessing[step_name]}
+            {
+                "roi_cache_key": roi_cache.key,
+                "preprocessing": cfg.preprocessing[step_name],
+            }
         )
         return cls._keyed(cfg, "preprocessing", config)
 
     @classmethod
     def _keyed(cls, cfg: Any, stage: str, config: dict[str, Any]) -> "StageCache":
-        """Returns the cache of one stage for the dataset of `cfg`, keyed by `config`.
+        """Returns the handle to the cache of one stage for the dataset of `cfg`.
 
         Args:
             cfg: The run configuration, with `cache_root` and `dataset` (with `name`).
@@ -169,7 +181,8 @@ class StageCache:
             config: The plain, resolved configuration that the key hashes.
 
         Returns:
-            The cache at `<cache_root>/<dataset>/<stage>/<key>/`.
+            The handle to the cache at `<cache_root>/<dataset>/<stage>/<key>/`, keyed by
+            `config`.
         """
         key = compute_cache_key(config)
         return cls(
@@ -303,21 +316,26 @@ class StageCache:
         return self.dir / recording.subject / recording.recording
 
 
-def preprocessing_caches(cfg: Any, roi: StageCache) -> dict[str, StageCache]:
-    """Returns the cache of every selected preprocessing step.
+def preprocessing_caches_from_config(
+    cfg: Any, roi_cache: StageCache
+) -> dict[str, StageCache]:
+    """Returns the handle to the cache of every selected preprocessing step.
 
-    The caches need not have been built yet.
+    Nothing is read from or written to disk, so the caches need not have been built
+    yet.
 
     Args:
         cfg: The run configuration, with `cache_root`, `dataset` (with `name`) and
             `preprocessing` (steps by name, empty for none).
-        roi: The ROI cache that the steps read.
+        roi_cache: The handle to the ROI cache that the steps read.
 
     Returns:
-        One cache per step name, as returned by `StageCache.for_preprocessing`.
+        One handle per step name, as returned by
+        `StageCache.from_config_for_preprocessing`.
     """
     return {
-        name: StageCache.for_preprocessing(cfg, name, roi) for name in cfg.preprocessing
+        name: StageCache.from_config_for_preprocessing(cfg, name, roi_cache)
+        for name in cfg.preprocessing
     }
 
 

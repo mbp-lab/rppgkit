@@ -18,7 +18,7 @@ from hydra.core.hydra_config import HydraConfig
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 
-from rppgkit.cache import StageCache, preprocessing_caches
+from rppgkit.cache import StageCache, preprocessing_caches_from_config
 from rppgkit.cached_videos import select_recordings
 from rppgkit.experiment import (
     compute_experiment_key,
@@ -62,9 +62,9 @@ def main(cfg: DictConfig) -> None:
 
     # --- Caches: the ROI cache and every preprocessing cache, checked to hold every
     # test recording before anything is predicted.
-    roi = StageCache.for_roi(cfg)
-    preprocessing = preprocessing_caches(cfg, roi)
-    for cache in [roi, *preprocessing.values()]:
+    roi_cache = StageCache.from_config_for_roi(cfg)
+    preprocessing_caches = preprocessing_caches_from_config(cfg, roi_cache)
+    for cache in [roi_cache, *preprocessing_caches.values()]:
         cache.check_has_recordings(test_recording_keys)
         log.info("%s cache: %s", cache.stage, cache.dir)
 
@@ -78,16 +78,20 @@ def main(cfg: DictConfig) -> None:
     # --- Predict and evaluate: each test recording without labels, against the raw
     # PPG of the ROI cache.
     rows, metrics = predict_and_evaluate(
-        method, test_recording_keys, roi, preprocessing, evaluation_settings
+        method,
+        test_recording_keys,
+        roi_cache,
+        preprocessing_caches,
+        evaluation_settings,
     )
 
     # --- Results: keys and configs that identify the run, written next to the metrics.
     # Same experiment_key for every fold of one experiment (everything but the fold),
     # so folds can be grouped and averaged; any other change gives a new key.
     experiment_config = {
-        "roi_cache_key": roi.key,
+        "roi_cache_key": roi_cache.key,
         "preprocessing_cache_keys": {
-            name: cache.key for name, cache in preprocessing.items()
+            name: step_cache.key for name, step_cache in preprocessing_caches.items()
         },
         "split_sha256": split_sha256,
         "method": cfg.method,
@@ -96,9 +100,10 @@ def main(cfg: DictConfig) -> None:
     provenance = {
         "experiment_key": compute_experiment_key(experiment_config),
         **experiment_config,
-        "roi_cache": str(roi.dir),
+        "roi_cache": str(roi_cache.dir),
         "preprocessing_caches": {
-            name: str(cache.dir) for name, cache in preprocessing.items()
+            name: str(step_cache.dir)
+            for name, step_cache in preprocessing_caches.items()
         },
         "split": {"path": cfg.split.path, "fold": cfg.split.fold},
     }
